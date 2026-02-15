@@ -120,3 +120,65 @@ local diagnostic_opts = {
 -- Use `later()` to avoid sourcing `vim.diagnostic` on startup
 MiniDeps.later(function() vim.diagnostic.config(diagnostic_opts) end)
 -- stylua: ignore end
+
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.opt.clipboard = "unnamedplus"
+
+if vim.fn.has("wsl") == 1 then
+	vim.g.clipboard = {
+		name = "WslClipboard",
+		copy = {
+			["+"] = "clip.exe",
+			["*"] = "clip.exe",
+		},
+		paste = {
+			["+"] = "powershell.exe -NoProfile -Command Get-Clipboard",
+			["*"] = "powershell.exe -NoProfile -Command Get-Clipboard",
+		},
+		cache_enabled = false,
+	}
+else
+	vim.g.clipboard = {
+		name = "wl-clipboard",
+		copy = {
+			["+"] = "wl-copy",
+			["*"] = "wl-copy",
+		},
+		paste = {
+			["+"] = "wl-paste --no-newline",
+			["*"] = "wl-paste --no-newline",
+		},
+		cache_enabled = 1,
+	}
+end
+
+local augroup = vim.api.nvim_create_augroup("numbertoggle", {})
+
+vim.api.nvim_create_autocmd(
+	{ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" },
+	{
+		pattern = "*",
+		group = augroup,
+		callback = function()
+			if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then
+				vim.opt.relativenumber = true
+			end
+		end,
+	}
+)
+
+vim.api.nvim_create_autocmd(
+	{ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEnter", "WinLeave" },
+	{
+		pattern = "*",
+		group = augroup,
+		callback = function()
+			if vim.o.nu then
+				vim.opt.relativenumber = false
+				vim.cmd("redraw")
+			end
+		end,
+	}
+)
