@@ -1,0 +1,15 @@
+local now, add = MiniDeps.now, MiniDeps.add
+
+add({
+  source = "folke/lazydev.nvim",
+})
+
+require("lazydev").setup({
+  library = {
+    -- Load luvit types when the `vim.uv` word is found
+    { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+
+    -- Ensure snacks.nvim is in your mini.deps managed path
+    { path = "snacks.nvim", words = { "Snacks" } },
+  },
+})

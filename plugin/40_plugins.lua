@@ -25,73 +25,7 @@ MiniDeps.now(function()
   vim.cmd("colorscheme base16-" .. theme)
 end)
 
--- Autosave
-local excluded_filetypes = {
-  "gitcommit",
-  "NvimTree",
-  "Outline",
-  "TelescopePrompt",
-  "alpha",
-  "dashboard",
-  "lazygit",
-  "neo-tree",
-  "oil",
-  "prompt",
-  "toggleterm",
-  "ministarter",
-}
-
-local excluded_filenames = {
-  "do-not-autosave-me.lua",
-}
-
-local function save_condition(buf)
-  if
-    vim.tbl_contains(excluded_filetypes, vim.bo[buf].filetype)
-    or vim.tbl_contains(excluded_filenames, vim.fn.expand("%:t"))
-  then
-    return false
-  end
-  return true
-end
-
--- autosave notification
-local group = vim.api.nvim_create_augroup("autosave", {})
-
-vim.api.nvim_create_autocmd("User", {
-  pattern = "AutoSaveWritePost",
-  group = group,
-  callback = function(opts)
-    if opts.data.saved_buffer then
-      local filename = vim.api.nvim_buf_get_name(opts.data.saved_buffer)
-      vim.notify("AutoSave: saved " .. filename .. " at " .. vim.fn.strftime("%H:%M:%S"), vim.log.levels.INFO)
-    end
-  end,
-})
-
-now_if_args(function()
-  add({
-    source = "okuuva/auto-save.nvim",
-    checkout = "v1.0.0",
-  })
-end)
-
-vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
-  once = true,
-  callback = function()
-    vim.cmd.packadd("auto-save.nvim")
-
-    require("auto-save").setup({
-      condition = save_condition,
-      debounce_delay = 2000,
-    })
-  end,
-})
-
-vim.api.nvim_create_user_command("ASToggle", function() require("auto-save").toggle() end, {})
-
 -- Blink.cmp
-add({ source = "samiulsami/cmp-go-deep", depends = { "kkharji/sqlite.lua" } })
 add({
   source = "saghen/blink.cmp",
   depends = { "rafamadriz/friendly-snippets" },
@@ -139,7 +73,6 @@ require("blink.cmp").setup({
       "path",
       "snippets",
       "buffer",
-      -- "markdown",
     },
     providers = {
       go_deep = {
@@ -159,18 +92,7 @@ require("blink.cmp").setup({
         -- make lazydev completions top priority (see `:h blink.cmp`)
         score_offset = 100,
       },
-      markdown = {
-        name = "RenderMarkdown",
-        module = "render-markdown.integ.blink",
-        fallbacks = { "lsp" },
-      },
     },
-    -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
-    -- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
-    -- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
-    --
-    -- See the fuzzy documentation for more information
-    -- fuzzy = { implementation = "prefer_rust_with_warning" },
   },
 
   completion = {
@@ -188,18 +110,16 @@ require("blink.cmp").setup({
             text = function(ctx) return ctx.idx == 10 and "0" or ctx.idx >= 10 and " " or tostring(ctx.idx) end,
             highlight = "BlinkCmpItemIdx", -- optional, only if you want to change its color
           },
-          -- kind_icon = {
-          -- 	text = function(ctx)
-          -- 		local kind_icon, _, _ =
-          -- 			require("mini.icons").get("lsp", ctx.kind)
-          -- 		return kind_icon
-          -- 	end,
-          -- 	-- (optional) use highlights from mini.icons
-          -- 	highlight = function(ctx)
-          -- 		local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
-          -- 		return hl
-          -- 	end,
-          -- },
+          kind_icon = {
+            text = function(ctx)
+              local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+              return kind_icon
+            end,
+            highlight = function(ctx)
+              local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+              return hl
+            end,
+          },
           kind = {
             highlight = function(ctx)
               local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
@@ -210,10 +130,10 @@ require("blink.cmp").setup({
       },
     },
     documentation = {
-      -- (Default) Only show the documentation popup when manually triggered
       auto_show = false,
     },
   },
+  fuzzy = { implementation = "prefer_rust_with_warning" },
 })
 
 -- Tree-sitter ================================================================
@@ -299,7 +219,31 @@ end)
 --
 -- Add it now if file (and not 'mini.starter') is shown after startup.
 now_if_args(function()
-  add("neovim/nvim-lspconfig")
+  add({
+    source = "cenk1cenk2/schema-companion.nvim",
+    depends = { "nvim-lua/plenary.nvim" },
+  })
+  require("schema-companion").setup({
+    log_level = vim.log.levels.INFO,
+  })
+
+  add({ source = "b0o/schemastore.nvim" })
+  add({ source = "neovim/nvim-lspconfig" })
+
+  vim.lsp.config("*", {
+    root_markers = { ".git" },
+  })
+
+  vim.lsp.enable({
+    "ty",
+    "dockerls",
+    "gopls",
+    "jsonls",
+    "lua_ls",
+    "nil_ls",
+    "yamlls",
+    "ruff",
+  })
 
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
   -- the rules provided by 'nvim-lspconfig'.

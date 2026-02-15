@@ -129,7 +129,7 @@ now(function() require('mini.statusline').setup() end)
 
 -- Tabline. Sets `:h 'tabline'` to show all listed buffers in a line at the top.
 -- Buffers are ordered as they were created. Navigate with `[b` and `]b`.
-now(function() require('mini.tabline').setup() end)
+-- now(function() require('mini.tabline').setup() end)
 
 -- Step one or two ============================================================
 -- Load now if Neovim is started like `nvim -- path/to/file`, otherwise - later.
