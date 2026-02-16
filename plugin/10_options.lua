@@ -127,58 +127,64 @@ MiniDeps.later(function() vim.diagnostic.config(diagnostic_opts) end)
 vim.opt.clipboard = "unnamedplus"
 
 if vim.fn.has("wsl") == 1 then
-	vim.g.clipboard = {
-		name = "WslClipboard",
-		copy = {
-			["+"] = "clip.exe",
-			["*"] = "clip.exe",
-		},
-		paste = {
-			["+"] = "powershell.exe -NoProfile -Command Get-Clipboard",
-			["*"] = "powershell.exe -NoProfile -Command Get-Clipboard",
-		},
-		cache_enabled = false,
-	}
+  vim.g.clipboard = {
+    name = "WslClipboard",
+    copy = {
+      ["+"] = "clip.exe",
+      ["*"] = "clip.exe",
+    },
+    paste = {
+      ["+"] = "powershell.exe -NoProfile -Command Get-Clipboard",
+      ["*"] = "powershell.exe -NoProfile -Command Get-Clipboard",
+    },
+    cache_enabled = false,
+  }
 else
-	vim.g.clipboard = {
-		name = "wl-clipboard",
-		copy = {
-			["+"] = "wl-copy",
-			["*"] = "wl-copy",
-		},
-		paste = {
-			["+"] = "wl-paste --no-newline",
-			["*"] = "wl-paste --no-newline",
-		},
-		cache_enabled = 1,
-	}
+  vim.g.clipboard = {
+    name = "wl-clipboard",
+    copy = {
+      ["+"] = "wl-copy",
+      ["*"] = "wl-copy",
+    },
+    paste = {
+      ["+"] = "wl-paste --no-newline",
+      ["*"] = "wl-paste --no-newline",
+    },
+    cache_enabled = 1,
+  }
 end
 
-local augroup = vim.api.nvim_create_augroup("numbertoggle", {})
+Config.new_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" }, "*", function()
+  if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then vim.opt.relativenumber = true end
+end)
 
-vim.api.nvim_create_autocmd(
-	{ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" },
-	{
-		pattern = "*",
-		group = augroup,
-		callback = function()
-			if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then
-				vim.opt.relativenumber = true
-			end
-		end,
-	}
-)
+Config.new_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEnter", "WinLeave" }, "*", function()
+  if vim.o.nu then
+    vim.opt.relativenumber = false
+    vim.cmd("redraw")
+  end
+end)
 
-vim.api.nvim_create_autocmd(
-	{ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEnter", "WinLeave" },
-	{
-		pattern = "*",
-		group = augroup,
-		callback = function()
-			if vim.o.nu then
-				vim.opt.relativenumber = false
-				vim.cmd("redraw")
-			end
-		end,
-	}
-)
+vim.filetype.add({
+  extension = { templ = "templ", env = "sh", service = "systemd", http = "http" },
+  pattern = {
+    [".*/defaults/.*%.ya?ml"] = "yaml.ansible",
+    [".*/host_vars/.*%.ya?ml"] = "yaml.ansible",
+    [".*/group_vars/.*%.ya?ml"] = "yaml.ansible",
+    [".*/group_vars/.*/.*%.ya?ml"] = "yaml.ansible",
+    [".*/playbook.*%.ya?ml"] = "yaml.ansible",
+    [".*/playbooks/.*%.ya?ml"] = "yaml.ansible",
+    [".*/roles/.*/tasks/.*%.ya?ml"] = "yaml.ansible",
+    [".*/roles/.*/handlers/.*%.ya?ml"] = "yaml.ansible",
+    [".*/tasks/.*%.ya?ml"] = "yaml.ansible",
+    [".*/molecule/.*%.ya?ml"] = "yaml.ansible",
+
+    ["%.env%.[%w_.-]+"] = "sh",
+  },
+  filename = {
+    [".pre-commit-config.yaml"] = "yaml.pre-commit",
+    [".env"] = "sh",
+  },
+})
+
+vim.keymap.set("n", "<C-a>", "ggVG", opts)

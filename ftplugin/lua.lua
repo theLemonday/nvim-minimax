@@ -1,5 +1,7 @@
--- MiniDeps.now(function()
---   MiniDeps.add({
+-- local now, add = MiniDeps.now, MiniDeps.add
+--
+-- now(function()
+--   add({
 --     source = "folke/lazydev.nvim",
 --   })
 --

@@ -11,12 +11,13 @@
 -- Make concise helpers for installing/adding plugins in two stages
 local add, later = MiniDeps.add, MiniDeps.later
 local now_if_args = Config.now_if_args
+local now = MiniDeps.now
 
 -- Colorscheme
 vim.opt.termguicolors = true
 
 add({ source = "RRethy/base16-nvim" })
-MiniDeps.now(function()
+now(function()
   local theme = vim.env.LIGHT_THEME
   if vim.fn.executable("darkman") == 1 then
     local out = vim.system({ "darkman", "get" }, { text = true }):wait().stdout
@@ -25,6 +26,23 @@ MiniDeps.now(function()
   vim.cmd("colorscheme base16-" .. theme)
 end)
 
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "lua",
+  callback = function()
+    -- 2. Add and Setup the plugin ONLY when a Lua file is opened
+    add({
+      source = "folke/lazydev.nvim",
+    })
+
+    -- 3. Configure it immediately for this buffer
+    require("lazydev").setup({
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    })
+  end,
+  once = true, -- Important: Only run this once per session to avoid re-adding
+})
 -- Blink.cmp
 add({
   source = "saghen/blink.cmp",
@@ -58,7 +76,6 @@ require("blink.cmp").setup({
     ["<A-9>"] = { function(cmp) cmp.accept({ index = 9 }) end },
     ["<A-0>"] = { function(cmp) cmp.accept({ index = 10 }) end },
   },
-
   appearance = {
     -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
     -- Adjusts spacing to ensure icons are aligned
@@ -182,6 +199,16 @@ now_if_args(function()
     "lua",
     "vimdoc",
     "markdown",
+    "go",
+    "python",
+    "yaml",
+    "json",
+    "bash",
+    "zsh",
+    "toml",
+    "html",
+    "javascript",
+    "vue",
     -- Add here more languages with which you want to use tree-sitter
     -- To see available languages:
     -- - Execute `:=require('nvim-treesitter').get_available()`
@@ -276,7 +303,28 @@ later(function()
     },
     -- Map of filetype to formatters
     -- Make sure that necessary CLI tool is available
-    formatters_by_ft = { lua = { "stylua" } },
+    formatters_by_ft = {
+      lua = { "stylua" },
+      dockerfile = { "dockerfmt" },
+      go = { "goimports", "gofumpt", "golines" },
+      python = {
+        "ruff_organize_imports",
+        -- To fix lint errors.
+        "ruff_fix",
+        -- To run the Ruff formatter.
+        "ruff_format",
+      },
+      nix = { "nixpkgs_fmt" },
+      javascript = { "prettierd" },
+      typescript = { "prettierd" },
+      typescriptreact = { "prettierd" },
+      vue = { "prettierd" },
+      bash = { "shfmt" },
+      yaml = { "yamlfix" },
+      json = { "prettierd" },
+      jsonc = { "prettierd" },
+      markdown = { "prettierd" },
+    },
     format_on_save = function(bufnr)
       local max_lines = 5000
       local line_count = vim.api.nvim_buf_line_count(bufnr)
@@ -326,3 +374,45 @@ later(function() add("rafamadriz/friendly-snippets") end)
 --   -- Enable only one
 --   vim.cmd('color everforest')
 -- end)
+
+now(function()
+  add({
+    source = "m4xshen/hardtime.nvim",
+    depends = { "MunifTanjim/nui.nvim" }, -- explicit dependency handling
+  })
+  require("hardtime").setup({})
+end)
+
+-- 2. Grug-far.nvim (Safe to defer with 'later')
+later(function()
+  add({
+    source = "MagicDuck/grug-far.nvim",
+  })
+
+  -- The setup call
+  require("grug-far").setup({
+    -- options go here
+  })
+end)
+
+later(function()
+  add({
+    source = "lewis6991/gitsigns.nvim",
+  })
+
+  require("gitsigns").setup({
+    -- 1. Enable the Virtual Text Blame
+    current_line_blame = true,
+
+    -- 2. Configure how it looks
+    current_line_blame_opts = {
+      virt_text = true,
+      virt_text_pos = "eol", -- 'eol' (End of Line) or 'overlay'
+      delay = 500, -- Delay in ms (avoids flickering when scrolling)
+      ignore_whitespace = false,
+    },
+
+    -- 3. Custom formatting (Optional)
+    current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> - <summary>",
+  })
+end)
