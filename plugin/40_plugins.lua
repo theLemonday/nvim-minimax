@@ -9,15 +9,14 @@
 -- Use this file to install and configure other such plugins.
 
 -- Make concise helpers for installing/adding plugins in two stages
-local add, later = MiniDeps.add, MiniDeps.later
-local now_if_args = Config.now_if_args
-local now = MiniDeps.now
+local now, now_if_args, later = Config.now, Config.now_if_args, Config.later
+local add = vim.pack.add
 
 -- Colorscheme
 vim.opt.termguicolors = true
 
-add({ source = 'RRethy/base16-nvim' })
 now(function()
+  add({ 'https://github.com/RRethy/base16-nvim' })
   local theme = vim.env.LIGHT_THEME
   if vim.fn.executable('darkman') == 1 then
     local out = vim.system({ 'darkman', 'get' }, { text = true }):wait().stdout
@@ -26,132 +25,125 @@ now(function()
   vim.cmd('colorscheme base16-' .. theme)
 end)
 
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'lua',
-  callback = function()
-    -- 2. Add and Setup the plugin ONLY when a Lua file is opened
-    add({
-      source = 'folke/lazydev.nvim',
-    })
-
-    -- 3. Configure it immediately for this buffer
-    require('lazydev').setup({
-      library = {
-        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
-      },
-    })
-  end,
-  once = true, -- Important: Only run this once per session to avoid re-adding
-})
 -- Blink.cmp
-add({
-  source = 'saghen/blink.cmp',
-  depends = { 'saghen/blink.compat', 'rafamadriz/friendly-snippets' },
-  checkout = 'v1.9.1', -- check releases for latest tag
-})
-
-require('blink.cmp').setup({
-  -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
-  -- 'super-tab' for mappings similar to vscode (tab to accept)
-  -- 'enter' for enter to accept
-  -- 'none' for no mappings
-  --
-  -- All presets have the following mappings:
-  -- C-space: Open menu or open docs if already open
-  -- C-n/C-p or Up/Down: Select next/previous item
-  -- C-e: Hide menu
-  -- C-k: Toggle signature help (if signature.enabled = true)
-  --
-  -- See :h blink-cmp-config-keymap for defining your own keymap
-  keymap = {
-    preset = 'default',
-    ['<A-1>'] = { function(cmp) cmp.accept({ index = 1 }) end },
-    ['<A-2>'] = { function(cmp) cmp.accept({ index = 2 }) end },
-    ['<A-3>'] = { function(cmp) cmp.accept({ index = 3 }) end },
-    ['<A-4>'] = { function(cmp) cmp.accept({ index = 4 }) end },
-    ['<A-5>'] = { function(cmp) cmp.accept({ index = 5 }) end },
-    ['<A-6>'] = { function(cmp) cmp.accept({ index = 6 }) end },
-    ['<A-7>'] = { function(cmp) cmp.accept({ index = 7 }) end },
-    ['<A-8>'] = { function(cmp) cmp.accept({ index = 8 }) end },
-    ['<A-9>'] = { function(cmp) cmp.accept({ index = 9 }) end },
-    ['<A-0>'] = { function(cmp) cmp.accept({ index = 10 }) end },
-  },
-  appearance = {
-    -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-    -- Adjusts spacing to ensure icons are aligned
-    nerd_font_variant = 'mono',
-  },
-
-  -- Default list of enabled providers defined so that you can extend it
-  -- elsewhere in your config, without redefining it, due to `opts_extend`
-  sources = {
-    default = {
-      'lsp',
-      'path',
-      'snippets',
-      'buffer',
+now_if_args(function()
+  add({
+    {
+      src = 'https://github.com/saghen/blink.cmp',
+      version = 'v1.9.1',
     },
-    providers = {
-      go_deep = {
-        name = 'go_deep',
-        module = 'blink.compat.source',
-        min_keyword_length = 3,
-        max_items = 5,
-        ---@module "cmp_go_deep"
-        ---@type cmp_go_deep.Options
-        opts = {
-          -- See below for configuration options
-        },
-      },
-      lazydev = {
-        name = 'LazyDev',
-        module = 'lazydev.integrations.blink',
-        -- make lazydev completions top priority (see `:h blink.cmp`)
-        score_offset = 100,
-      },
-    },
-  },
+    'https://github.com/saghen/blink.compat',
+    'https://github.com/rafamadriz/friendly-snippets',
+  })
 
-  completion = {
-    ghost_text = { enabled = true },
-    menu = {
-      draw = {
-        columns = {
-          { 'item_idx' },
-          -- { "kind_icon" },
-          { 'label', 'label_description', gap = 1 },
-          { 'kind' },
+  require('blink.cmp').setup({
+    -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
+    -- 'super-tab' for mappings similar to vscode (tab to accept)
+    -- 'enter' for enter to accept
+    -- 'none' for no mappings
+    --
+    -- All presets have the following mappings:
+    -- C-space: Open menu or open docs if already open
+    -- C-n/C-p or Up/Down: Select next/previous item
+    -- C-e: Hide menu
+    -- C-k: Toggle signature help (if signature.enabled = true)
+    --
+    -- See :h blink-cmp-config-keymap for defining your own keymap
+    keymap = {
+      preset = 'default',
+      ['<A-1>'] = { function(cmp) cmp.accept({ index = 1 }) end },
+      ['<A-2>'] = { function(cmp) cmp.accept({ index = 2 }) end },
+      ['<A-3>'] = { function(cmp) cmp.accept({ index = 3 }) end },
+      ['<A-4>'] = { function(cmp) cmp.accept({ index = 4 }) end },
+      ['<A-5>'] = { function(cmp) cmp.accept({ index = 5 }) end },
+      ['<A-6>'] = { function(cmp) cmp.accept({ index = 6 }) end },
+      ['<A-7>'] = { function(cmp) cmp.accept({ index = 7 }) end },
+      ['<A-8>'] = { function(cmp) cmp.accept({ index = 8 }) end },
+      ['<A-9>'] = { function(cmp) cmp.accept({ index = 9 }) end },
+      ['<A-0>'] = { function(cmp) cmp.accept({ index = 10 }) end },
+    },
+    appearance = {
+      -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+      -- Adjusts spacing to ensure icons are aligned
+      nerd_font_variant = 'mono',
+    },
+
+    -- Default list of enabled providers defined so that you can extend it
+    -- elsewhere in your config, without redefining it, due to `opts_extend`
+    sources = {
+      default = {
+        'lsp',
+        'path',
+        'snippets',
+        'buffer',
+      },
+      providers = {
+        go_deep = {
+          name = 'go_deep',
+          module = 'blink.compat.source',
+          min_keyword_length = 3,
+          max_items = 5,
+          ---@module "cmp_go_deep"
+          ---@type cmp_go_deep.Options
+          opts = {
+            -- See below for configuration options
+          },
         },
-        components = {
-          item_idx = {
-            text = function(ctx) return ctx.idx == 10 and '0' or ctx.idx >= 10 and ' ' or tostring(ctx.idx) end,
-            highlight = 'BlinkCmpItemIdx', -- optional, only if you want to change its color
-          },
-          kind_icon = {
-            text = function(ctx)
-              local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
-              return kind_icon
-            end,
-            highlight = function(ctx)
-              local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
-              return hl
-            end,
-          },
-          kind = {
-            highlight = function(ctx)
-              local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
-              return hl
-            end,
-          },
+        lazydev = {
+          name = 'LazyDev',
+          module = 'lazydev.integrations.blink',
+          -- make lazydev completions top priority (see `:h blink.cmp`)
+          score_offset = 100,
         },
       },
     },
-    documentation = {
-      auto_show = false,
+
+    completion = {
+      ghost_text = { enabled = true },
+      menu = {
+        draw = {
+          columns = {
+            { 'item_idx' },
+            -- { "kind_icon" },
+            { 'label', 'label_description', gap = 1 },
+            { 'kind' },
+          },
+          components = {
+            item_idx = {
+              text = function(ctx) return ctx.idx == 10 and '0' or ctx.idx >= 10 and ' ' or tostring(ctx.idx) end,
+              highlight = 'BlinkCmpItemIdx', -- optional, only if you want to change its color
+            },
+            kind_icon = {
+              text = function(ctx)
+                local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
+                return kind_icon
+              end,
+              highlight = function(ctx)
+                local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                return hl
+              end,
+            },
+            kind = {
+              highlight = function(ctx)
+                local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                return hl
+              end,
+            },
+          },
+        },
+      },
+      documentation = {
+        auto_show = true,
+      },
     },
-  },
-  fuzzy = { implementation = 'prefer_rust_with_warning' },
-})
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
+  })
+end)
+
+Config.on_filetype(
+  'go',
+  function() add({ 'https://github.com/samiulsami/cmp-go-deep', 'https://github.com/kkharji/sqlite.lua' }) end
+)
 
 -- Tree-sitter ================================================================
 
@@ -179,16 +171,13 @@ require('blink.cmp').setup({
 --   with `:TSInstall <language>`. Be sure to have necessary system dependencies
 --   (see MiniMax README section for software requirements).
 now_if_args(function()
+  -- Define hook to update tree-sitter parsers after plugin is updated
+  local ts_update = function() vim.cmd('TSUpdate') end
+  Config.on_packchanged('nvim-treesitter', { 'update' }, ts_update, ':TSUpdate')
+
   add({
-    source = 'nvim-treesitter/nvim-treesitter',
-    -- Update tree-sitter parser after plugin is updated
-    hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
-  })
-  add({
-    source = 'nvim-treesitter/nvim-treesitter-textobjects',
-    -- Use `main` branch since `master` branch is frozen, yet still default
-    -- It is needed for compatibility with 'nvim-treesitter' `main` branch
-    checkout = 'main',
+    'https://github.com/nvim-treesitter/nvim-treesitter',
+    'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
   })
 
   -- Define languages which will have parsers installed and auto enabled
@@ -247,15 +236,14 @@ end)
 -- Add it now if file (and not 'mini.starter') is shown after startup.
 now_if_args(function()
   add({
-    source = 'cenk1cenk2/schema-companion.nvim',
-    depends = { 'nvim-lua/plenary.nvim' },
+    'https://github.com/cenk1cenk2/schema-companion.nvim',
+    'https://github.com/nvim-lua/plenary.nvim',
+    'https://github.com/b0o/schemastore.nvim',
+    'https://github.com/neovim/nvim-lspconfig',
   })
   require('schema-companion').setup({
     log_level = vim.log.levels.INFO,
   })
-
-  add({ source = 'b0o/schemastore.nvim' })
-  add({ source = 'neovim/nvim-lspconfig' })
 
   vim.lsp.config('*', {
     root_markers = { '.git' },
@@ -290,7 +278,7 @@ end)
 -- The 'stevearc/conform.nvim' plugin is a good and maintained solution for easier
 -- formatting setup.
 later(function()
-  add('stevearc/conform.nvim')
+  add({ 'https://github.com/stevearc/conform.nvim' })
 
   -- See also:
   -- - `:h Conform`
@@ -333,6 +321,13 @@ later(function()
       end
       return { timeout_ms = 2000, lsp_fallback = true }
     end,
+    formatters = {
+      yamlfix = {
+        env = {
+          YAMLFIX_WHITELINES = 1,
+        },
+      },
+    },
   })
 end)
 
@@ -345,7 +340,7 @@ end)
 -- snippet files. They are organized in 'snippets/' directory (mostly) per language.
 -- 'mini.snippets' is designed to work with it as seamlessly as possible.
 -- See `:h MiniSnippets.gen_loader.from_lang()`.
-later(function() add('rafamadriz/friendly-snippets') end)
+later(function() add({ 'https://github.com/rafamadriz/friendly-snippets' }) end)
 
 -- Honorable mentions =========================================================
 
@@ -358,39 +353,41 @@ later(function() add('rafamadriz/friendly-snippets') end)
 --
 -- You can use it like so:
 -- now_if_args(function()
---   add('mason-org/mason.nvim')
+--   add({ 'https://github.com/mason-org/mason.nvim' })
 --   require('mason').setup()
 -- end)
 
 -- Beautiful, usable, well maintained color schemes outside of 'mini.nvim' and
 -- have full support of its highlight groups. Use if you don't like 'miniwinter'
 -- enabled in 'plugin/30_mini.lua' or other suggested 'mini.hues' based ones.
--- MiniDeps.now(function()
---   -- Install only those that you need
---   add('sainnhe/everforest')
---   add('Shatur/neovim-ayu')
---   add('ellisonleao/gruvbox.nvim')
+-- Config.now(function()
+--  -- Install only those that you need
+--  add({
+--    'https://github.com/sainnhe/everforest',
+--    'https://github.com/Shatur/neovim-ayu',
+--    'https://github.com/ellisonleao/gruvbox.nvim',
+--  })
 --
 --   -- Enable only one
 --   vim.cmd('color everforest')
 -- end)
 
-now(function()
-  add({
-    source = 'm4xshen/hardtime.nvim',
-    depends = { 'MunifTanjim/nui.nvim' }, -- explicit dependency handling
-  })
-  require('hardtime').setup({})
-end)
-
--- 2. Grug-far.nvim (Safe to defer with 'later')
-later(function()
-  add({
-    source = 'MagicDuck/grug-far.nvim',
-  })
-
-  -- The setup call
-  require('grug-far').setup({
-    -- options go here
-  })
-end)
+-- now(function()
+--   add({
+--     source = 'm4xshen/hardtime.nvim',
+--     depends = { 'MunifTanjim/nui.nvim' }, -- explicit dependency handling
+--   })
+--   require('hardtime').setup({})
+-- end)
+--
+-- -- 2. Grug-far.nvim (Safe to defer with 'later')
+-- later(function()
+--   add({
+--     source = 'MagicDuck/grug-far.nvim',
+--   })
+--
+--   -- The setup call
+--   require('grug-far').setup({
+--     -- options go here
+--   })
+-- end)
