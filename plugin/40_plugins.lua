@@ -16,28 +16,28 @@ local now = MiniDeps.now
 -- Colorscheme
 vim.opt.termguicolors = true
 
-add({ source = "RRethy/base16-nvim" })
+add({ source = 'RRethy/base16-nvim' })
 now(function()
   local theme = vim.env.LIGHT_THEME
-  if vim.fn.executable("darkman") == 1 then
-    local out = vim.system({ "darkman", "get" }, { text = true }):wait().stdout
-    if out and vim.trim(out) == "dark" then theme = vim.env.DARK_THEME end
+  if vim.fn.executable('darkman') == 1 then
+    local out = vim.system({ 'darkman', 'get' }, { text = true }):wait().stdout
+    if out and vim.trim(out) == 'dark' then theme = vim.env.DARK_THEME end
   end
-  vim.cmd("colorscheme base16-" .. theme)
+  vim.cmd('colorscheme base16-' .. theme)
 end)
 
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "lua",
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'lua',
   callback = function()
     -- 2. Add and Setup the plugin ONLY when a Lua file is opened
     add({
-      source = "folke/lazydev.nvim",
+      source = 'folke/lazydev.nvim',
     })
 
     -- 3. Configure it immediately for this buffer
-    require("lazydev").setup({
+    require('lazydev').setup({
       library = {
-        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
       },
     })
   end,
@@ -45,12 +45,12 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 -- Blink.cmp
 add({
-  source = "saghen/blink.cmp",
-  depends = { "rafamadriz/friendly-snippets" },
-  checkout = "v1.9.1", -- check releases for latest tag
+  source = 'saghen/blink.cmp',
+  depends = { 'saghen/blink.compat', 'rafamadriz/friendly-snippets' },
+  checkout = 'v1.9.1', -- check releases for latest tag
 })
 
-require("blink.cmp").setup({
+require('blink.cmp').setup({
   -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
   -- 'super-tab' for mappings similar to vscode (tab to accept)
   -- 'enter' for enter to accept
@@ -64,37 +64,37 @@ require("blink.cmp").setup({
   --
   -- See :h blink-cmp-config-keymap for defining your own keymap
   keymap = {
-    preset = "default",
-    ["<A-1>"] = { function(cmp) cmp.accept({ index = 1 }) end },
-    ["<A-2>"] = { function(cmp) cmp.accept({ index = 2 }) end },
-    ["<A-3>"] = { function(cmp) cmp.accept({ index = 3 }) end },
-    ["<A-4>"] = { function(cmp) cmp.accept({ index = 4 }) end },
-    ["<A-5>"] = { function(cmp) cmp.accept({ index = 5 }) end },
-    ["<A-6>"] = { function(cmp) cmp.accept({ index = 6 }) end },
-    ["<A-7>"] = { function(cmp) cmp.accept({ index = 7 }) end },
-    ["<A-8>"] = { function(cmp) cmp.accept({ index = 8 }) end },
-    ["<A-9>"] = { function(cmp) cmp.accept({ index = 9 }) end },
-    ["<A-0>"] = { function(cmp) cmp.accept({ index = 10 }) end },
+    preset = 'default',
+    ['<A-1>'] = { function(cmp) cmp.accept({ index = 1 }) end },
+    ['<A-2>'] = { function(cmp) cmp.accept({ index = 2 }) end },
+    ['<A-3>'] = { function(cmp) cmp.accept({ index = 3 }) end },
+    ['<A-4>'] = { function(cmp) cmp.accept({ index = 4 }) end },
+    ['<A-5>'] = { function(cmp) cmp.accept({ index = 5 }) end },
+    ['<A-6>'] = { function(cmp) cmp.accept({ index = 6 }) end },
+    ['<A-7>'] = { function(cmp) cmp.accept({ index = 7 }) end },
+    ['<A-8>'] = { function(cmp) cmp.accept({ index = 8 }) end },
+    ['<A-9>'] = { function(cmp) cmp.accept({ index = 9 }) end },
+    ['<A-0>'] = { function(cmp) cmp.accept({ index = 10 }) end },
   },
   appearance = {
     -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
     -- Adjusts spacing to ensure icons are aligned
-    nerd_font_variant = "mono",
+    nerd_font_variant = 'mono',
   },
 
   -- Default list of enabled providers defined so that you can extend it
   -- elsewhere in your config, without redefining it, due to `opts_extend`
   sources = {
     default = {
-      "lsp",
-      "path",
-      "snippets",
-      "buffer",
+      'lsp',
+      'path',
+      'snippets',
+      'buffer',
     },
     providers = {
       go_deep = {
-        name = "go_deep",
-        module = "blink.compat.source",
+        name = 'go_deep',
+        module = 'blink.compat.source',
         min_keyword_length = 3,
         max_items = 5,
         ---@module "cmp_go_deep"
@@ -104,8 +104,8 @@ require("blink.cmp").setup({
         },
       },
       lazydev = {
-        name = "LazyDev",
-        module = "lazydev.integrations.blink",
+        name = 'LazyDev',
+        module = 'lazydev.integrations.blink',
         -- make lazydev completions top priority (see `:h blink.cmp`)
         score_offset = 100,
       },
@@ -117,29 +117,29 @@ require("blink.cmp").setup({
     menu = {
       draw = {
         columns = {
-          { "item_idx" },
+          { 'item_idx' },
           -- { "kind_icon" },
-          { "label", "label_description", gap = 1 },
-          { "kind" },
+          { 'label', 'label_description', gap = 1 },
+          { 'kind' },
         },
         components = {
           item_idx = {
-            text = function(ctx) return ctx.idx == 10 and "0" or ctx.idx >= 10 and " " or tostring(ctx.idx) end,
-            highlight = "BlinkCmpItemIdx", -- optional, only if you want to change its color
+            text = function(ctx) return ctx.idx == 10 and '0' or ctx.idx >= 10 and ' ' or tostring(ctx.idx) end,
+            highlight = 'BlinkCmpItemIdx', -- optional, only if you want to change its color
           },
           kind_icon = {
             text = function(ctx)
-              local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+              local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
               return kind_icon
             end,
             highlight = function(ctx)
-              local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+              local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
               return hl
             end,
           },
           kind = {
             highlight = function(ctx)
-              local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+              local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
               return hl
             end,
           },
@@ -150,7 +150,7 @@ require("blink.cmp").setup({
       auto_show = false,
     },
   },
-  fuzzy = { implementation = "prefer_rust_with_warning" },
+  fuzzy = { implementation = 'prefer_rust_with_warning' },
 })
 
 -- Tree-sitter ================================================================
@@ -180,15 +180,15 @@ require("blink.cmp").setup({
 --   (see MiniMax README section for software requirements).
 now_if_args(function()
   add({
-    source = "nvim-treesitter/nvim-treesitter",
+    source = 'nvim-treesitter/nvim-treesitter',
     -- Update tree-sitter parser after plugin is updated
-    hooks = { post_checkout = function() vim.cmd("TSUpdate") end },
+    hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
   })
   add({
-    source = "nvim-treesitter/nvim-treesitter-textobjects",
+    source = 'nvim-treesitter/nvim-treesitter-textobjects',
     -- Use `main` branch since `master` branch is frozen, yet still default
     -- It is needed for compatibility with 'nvim-treesitter' `main` branch
-    checkout = "main",
+    checkout = 'main',
   })
 
   -- Define languages which will have parsers installed and auto enabled
@@ -196,28 +196,28 @@ now_if_args(function()
   -- for the installation to finish before opening a file for added language(s).
   local languages = {
     -- These are already pre-installed with Neovim. Used as an example.
-    "lua",
-    "vimdoc",
-    "markdown",
-    "go",
-    "python",
-    "yaml",
-    "json",
-    "bash",
-    "zsh",
-    "toml",
-    "html",
-    "javascript",
-    "vue",
+    'lua',
+    'vimdoc',
+    'markdown',
+    'go',
+    'python',
+    'yaml',
+    'json',
+    'bash',
+    'zsh',
+    'toml',
+    'html',
+    'javascript',
+    'vue',
     -- Add here more languages with which you want to use tree-sitter
     -- To see available languages:
     -- - Execute `:=require('nvim-treesitter').get_available()`
     -- - Visit 'SUPPORTED_LANGUAGES.md' file at
     --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
   }
-  local isnt_installed = function(lang) return #vim.api.nvim_get_runtime_file("parser/" .. lang .. ".*", false) == 0 end
+  local isnt_installed = function(lang) return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0 end
   local to_install = vim.tbl_filter(isnt_installed, languages)
-  if #to_install > 0 then require("nvim-treesitter").install(to_install) end
+  if #to_install > 0 then require('nvim-treesitter').install(to_install) end
 
   -- Enable tree-sitter after opening a file for a target language
   local filetypes = {}
@@ -227,7 +227,7 @@ now_if_args(function()
     end
   end
   local ts_start = function(ev) vim.treesitter.start(ev.buf) end
-  Config.new_autocmd("FileType", filetypes, ts_start, "Start tree-sitter")
+  Config.new_autocmd('FileType', filetypes, ts_start, 'Start tree-sitter')
 end)
 
 -- Language servers ===========================================================
@@ -247,29 +247,29 @@ end)
 -- Add it now if file (and not 'mini.starter') is shown after startup.
 now_if_args(function()
   add({
-    source = "cenk1cenk2/schema-companion.nvim",
-    depends = { "nvim-lua/plenary.nvim" },
+    source = 'cenk1cenk2/schema-companion.nvim',
+    depends = { 'nvim-lua/plenary.nvim' },
   })
-  require("schema-companion").setup({
+  require('schema-companion').setup({
     log_level = vim.log.levels.INFO,
   })
 
-  add({ source = "b0o/schemastore.nvim" })
-  add({ source = "neovim/nvim-lspconfig" })
+  add({ source = 'b0o/schemastore.nvim' })
+  add({ source = 'neovim/nvim-lspconfig' })
 
-  vim.lsp.config("*", {
-    root_markers = { ".git" },
+  vim.lsp.config('*', {
+    root_markers = { '.git' },
   })
 
   vim.lsp.enable({
-    "ty",
-    "dockerls",
-    "gopls",
-    "jsonls",
-    "lua_ls",
-    "nil_ls",
-    "yamlls",
-    "ruff",
+    'ty',
+    'dockerls',
+    'gopls',
+    'jsonls',
+    'lua_ls',
+    'nil_ls',
+    'yamlls',
+    'ruff',
   })
 
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
@@ -290,40 +290,40 @@ end)
 -- The 'stevearc/conform.nvim' plugin is a good and maintained solution for easier
 -- formatting setup.
 later(function()
-  add("stevearc/conform.nvim")
+  add('stevearc/conform.nvim')
 
   -- See also:
   -- - `:h Conform`
   -- - `:h conform-options`
   -- - `:h conform-formatters`
-  require("conform").setup({
+  require('conform').setup({
     default_format_opts = {
       -- Allow formatting from LSP server if no dedicated formatter is available
-      lsp_format = "fallback",
+      lsp_format = 'fallback',
     },
     -- Map of filetype to formatters
     -- Make sure that necessary CLI tool is available
     formatters_by_ft = {
-      lua = { "stylua" },
-      dockerfile = { "dockerfmt" },
-      go = { "goimports", "gofumpt", "golines" },
+      lua = { 'stylua' },
+      dockerfile = { 'dockerfmt' },
+      go = { 'goimports', 'gofumpt', 'golines' },
       python = {
-        "ruff_organize_imports",
+        'ruff_organize_imports',
         -- To fix lint errors.
-        "ruff_fix",
+        'ruff_fix',
         -- To run the Ruff formatter.
-        "ruff_format",
+        'ruff_format',
       },
-      nix = { "nixpkgs_fmt" },
-      javascript = { "prettierd" },
-      typescript = { "prettierd" },
-      typescriptreact = { "prettierd" },
-      vue = { "prettierd" },
-      bash = { "shfmt" },
-      yaml = { "yamlfix" },
-      json = { "prettierd" },
-      jsonc = { "prettierd" },
-      markdown = { "prettierd" },
+      nix = { 'nixpkgs_fmt' },
+      javascript = { 'prettierd' },
+      typescript = { 'prettierd' },
+      typescriptreact = { 'prettierd' },
+      vue = { 'prettierd' },
+      bash = { 'shfmt' },
+      yaml = { 'yamlfix' },
+      json = { 'prettierd' },
+      jsonc = { 'prettierd' },
+      markdown = { 'prettierd' },
     },
     format_on_save = function(bufnr)
       local max_lines = 5000
@@ -345,7 +345,7 @@ end)
 -- snippet files. They are organized in 'snippets/' directory (mostly) per language.
 -- 'mini.snippets' is designed to work with it as seamlessly as possible.
 -- See `:h MiniSnippets.gen_loader.from_lang()`.
-later(function() add("rafamadriz/friendly-snippets") end)
+later(function() add('rafamadriz/friendly-snippets') end)
 
 -- Honorable mentions =========================================================
 
@@ -377,42 +377,20 @@ later(function() add("rafamadriz/friendly-snippets") end)
 
 now(function()
   add({
-    source = "m4xshen/hardtime.nvim",
-    depends = { "MunifTanjim/nui.nvim" }, -- explicit dependency handling
+    source = 'm4xshen/hardtime.nvim',
+    depends = { 'MunifTanjim/nui.nvim' }, -- explicit dependency handling
   })
-  require("hardtime").setup({})
+  require('hardtime').setup({})
 end)
 
 -- 2. Grug-far.nvim (Safe to defer with 'later')
 later(function()
   add({
-    source = "MagicDuck/grug-far.nvim",
+    source = 'MagicDuck/grug-far.nvim',
   })
 
   -- The setup call
-  require("grug-far").setup({
+  require('grug-far').setup({
     -- options go here
-  })
-end)
-
-later(function()
-  add({
-    source = "lewis6991/gitsigns.nvim",
-  })
-
-  require("gitsigns").setup({
-    -- 1. Enable the Virtual Text Blame
-    current_line_blame = true,
-
-    -- 2. Configure how it looks
-    current_line_blame_opts = {
-      virt_text = true,
-      virt_text_pos = "eol", -- 'eol' (End of Line) or 'overlay'
-      delay = 500, -- Delay in ms (avoids flickering when scrolling)
-      ignore_whitespace = false,
-    },
-
-    -- 3. Custom formatting (Optional)
-    current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> - <summary>",
   })
 end)

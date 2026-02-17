@@ -17,6 +17,7 @@
 
 -- General ====================================================================
 vim.g.mapleader = ' ' -- Use `<Space>` as <Leader> key
+vim.g.localleader='\\'
 
 vim.o.mouse       = 'a'            -- Enable mouse
 vim.o.mousescroll = 'ver:25,hor:6' -- Customize mouse scroll
@@ -124,67 +125,67 @@ MiniDeps.later(function() vim.diagnostic.config(diagnostic_opts) end)
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.opt.clipboard = "unnamedplus"
+vim.opt.clipboard = 'unnamedplus'
 
-if vim.fn.has("wsl") == 1 then
+if vim.fn.has('wsl') == 1 then
   vim.g.clipboard = {
-    name = "WslClipboard",
+    name = 'WslClipboard',
     copy = {
-      ["+"] = "clip.exe",
-      ["*"] = "clip.exe",
+      ['+'] = 'clip.exe',
+      ['*'] = 'clip.exe',
     },
     paste = {
-      ["+"] = "powershell.exe -NoProfile -Command Get-Clipboard",
-      ["*"] = "powershell.exe -NoProfile -Command Get-Clipboard",
+      ['+'] = 'powershell.exe -NoProfile -Command Get-Clipboard',
+      ['*'] = 'powershell.exe -NoProfile -Command Get-Clipboard',
     },
     cache_enabled = false,
   }
 else
   vim.g.clipboard = {
-    name = "wl-clipboard",
+    name = 'wl-clipboard',
     copy = {
-      ["+"] = "wl-copy",
-      ["*"] = "wl-copy",
+      ['+'] = 'wl-copy',
+      ['*'] = 'wl-copy',
     },
     paste = {
-      ["+"] = "wl-paste --no-newline",
-      ["*"] = "wl-paste --no-newline",
+      ['+'] = 'wl-paste --no-newline',
+      ['*'] = 'wl-paste --no-newline',
     },
     cache_enabled = 1,
   }
 end
 
-Config.new_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" }, "*", function()
-  if vim.o.nu and vim.api.nvim_get_mode().mode ~= "i" then vim.opt.relativenumber = true end
+Config.new_autocmd({ 'BufEnter', 'FocusGained', 'InsertLeave', 'CmdlineLeave', 'WinEnter' }, '*', function()
+  if vim.o.nu and vim.api.nvim_get_mode().mode ~= 'i' then vim.opt.relativenumber = true end
 end)
 
-Config.new_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "CmdlineEnter", "WinLeave" }, "*", function()
+Config.new_autocmd({ 'BufLeave', 'FocusLost', 'InsertEnter', 'CmdlineEnter', 'WinLeave' }, '*', function()
   if vim.o.nu then
     vim.opt.relativenumber = false
-    vim.cmd("redraw")
+    vim.cmd('redraw')
   end
 end)
 
 vim.filetype.add({
-  extension = { templ = "templ", env = "sh", service = "systemd", http = "http" },
+  extension = { templ = 'templ', env = 'sh', service = 'systemd', http = 'http', sh = 'bash' },
   pattern = {
-    [".*/defaults/.*%.ya?ml"] = "yaml.ansible",
-    [".*/host_vars/.*%.ya?ml"] = "yaml.ansible",
-    [".*/group_vars/.*%.ya?ml"] = "yaml.ansible",
-    [".*/group_vars/.*/.*%.ya?ml"] = "yaml.ansible",
-    [".*/playbook.*%.ya?ml"] = "yaml.ansible",
-    [".*/playbooks/.*%.ya?ml"] = "yaml.ansible",
-    [".*/roles/.*/tasks/.*%.ya?ml"] = "yaml.ansible",
-    [".*/roles/.*/handlers/.*%.ya?ml"] = "yaml.ansible",
-    [".*/tasks/.*%.ya?ml"] = "yaml.ansible",
-    [".*/molecule/.*%.ya?ml"] = "yaml.ansible",
+    ['.*/defaults/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/host_vars/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/group_vars/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/group_vars/.*/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/playbook.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/playbooks/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/roles/.*/tasks/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/roles/.*/handlers/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/tasks/.*%.ya?ml'] = 'yaml.ansible',
+    ['.*/molecule/.*%.ya?ml'] = 'yaml.ansible',
 
-    ["%.env%.[%w_.-]+"] = "sh",
+    ['%.env%.[%w_.-]+'] = 'sh',
   },
   filename = {
-    [".pre-commit-config.yaml"] = "yaml.pre-commit",
-    [".env"] = "sh",
+    ['.pre-commit-config.yaml'] = 'yaml.pre-commit',
+    ['.env'] = 'sh',
   },
 })
 
-vim.keymap.set("n", "<C-a>", "ggVG", opts)
+vim.keymap.set('n', '<C-a>', 'ggVG', opts)
