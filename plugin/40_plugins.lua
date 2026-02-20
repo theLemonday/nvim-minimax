@@ -372,22 +372,85 @@ later(function() add({ 'https://github.com/rafamadriz/friendly-snippets' }) end)
 --   vim.cmd('color everforest')
 -- end)
 
--- now(function()
---   add({
---     source = 'm4xshen/hardtime.nvim',
---     depends = { 'MunifTanjim/nui.nvim' }, -- explicit dependency handling
---   })
---   require('hardtime').setup({})
--- end)
---
--- -- 2. Grug-far.nvim (Safe to defer with 'later')
--- later(function()
---   add({
---     source = 'MagicDuck/grug-far.nvim',
---   })
---
---   -- The setup call
---   require('grug-far').setup({
---     -- options go here
---   })
--- end)
+now(function()
+  add({
+    'https://github.com/m4xshen/hardtime.nvim',
+    'https://github.com/MunifTanjim/nui.nvim', -- explicit dependency handling
+  })
+  require('hardtime').setup({})
+end)
+
+-- 2. Grug-far.nvim (Safe to defer with 'later')
+later(function()
+  add({
+    'https://github.com/MagicDuck/grug-far.nvim',
+  })
+
+  -- The setup call
+  require('grug-far').setup({})
+end)
+
+-- We load this "later" so it doesn't block startup
+later(function()
+  -- 1. Add the plugin
+  add({
+    'https://github.com/okuuva/auto-save.nvim',
+    -- Checkout specific version if needed, usually HEAD is fine for this plugin
+    -- checkout = 'v1.0.0',
+  })
+
+  -- 2. Define Exclusions (Local to this scope to keep global namespace clean)
+  local excluded_filetypes = {
+    'gitcommit',
+    'NvimTree',
+    'Outline',
+    'TelescopePrompt',
+    'alpha',
+    'dashboard',
+    'lazygit',
+    'neo-tree',
+    'oil',
+    'prompt',
+    'toggleterm',
+  }
+
+  local excluded_filenames = { 'do-not-autosave-me.lua' }
+
+  -- 3. Configure and Setup
+  require('auto-save').setup({
+    -- Fix: "debouce" -> "debounce"
+    debounce_delay = 2000,
+
+    -- Condition Function
+    condition = function(buf)
+      local ft = vim.api.nvim_get_option_value('filetype', { buf = buf })
+      local fn = vim.fn.expand('%:t')
+
+      -- Check exclusions
+      if vim.tbl_contains(excluded_filetypes, ft) then return false end
+      if vim.tbl_contains(excluded_filenames, fn) then return false end
+
+      -- Extra safety: Check if modifiable
+      if not vim.api.nvim_get_option_value('modifiable', { buf = buf }) then return false end
+
+      return true
+    end,
+  })
+
+  -- 4. Notification Autocmd (Keep this inside `later` too)
+  local group = vim.api.nvim_create_augroup('autosave_notify', { clear = true })
+
+  vim.api.nvim_create_autocmd('User', {
+    pattern = 'AutoSaveWritePost',
+    group = group,
+    callback = function(opts)
+      if opts.data and opts.data.saved_buffer then
+        local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(opts.data.saved_buffer), ':t')
+        local time = vim.fn.strftime('%H:%M:%S')
+
+        -- Use vim.notify for better integration with notification plugins (like nvim-notify)
+        vim.notify('Saved ' .. filename .. ' at ' .. time, vim.log.levels.INFO, { title = 'AutoSave' })
+      end
+    end,
+  })
+end)
