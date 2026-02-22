@@ -9,7 +9,7 @@
 -- Use this file to install and configure other such plugins.
 
 -- Make concise helpers for installing/adding plugins in two stages
-local now, now_if_args, later = Config.now, Config.now_if_args, Config.later
+local now, now_if_args, later, new_autocmd = Config.now, Config.now_if_args, Config.later, Config.new_autocmd
 local add = vim.pack.add
 
 -- Colorscheme
@@ -137,6 +137,7 @@ now_if_args(function()
       },
     },
     fuzzy = { implementation = 'prefer_rust_with_warning' },
+    snippets = { preset = 'mini_snippets' },
   })
 end)
 
@@ -437,20 +438,13 @@ later(function()
     end,
   })
 
-  -- 4. Notification Autocmd (Keep this inside `later` too)
-  local group = vim.api.nvim_create_augroup('autosave_notify', { clear = true })
+  new_autocmd('User', 'AutoSaveWritePost', function(opts)
+    if opts.data and opts.data.saved_buffer then
+      local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(opts.data.saved_buffer), ':t')
+      local time = vim.fn.strftime('%H:%M:%S')
 
-  vim.api.nvim_create_autocmd('User', {
-    pattern = 'AutoSaveWritePost',
-    group = group,
-    callback = function(opts)
-      if opts.data and opts.data.saved_buffer then
-        local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(opts.data.saved_buffer), ':t')
-        local time = vim.fn.strftime('%H:%M:%S')
-
-        -- Use vim.notify for better integration with notification plugins (like nvim-notify)
-        vim.notify('Saved ' .. filename .. ' at ' .. time, vim.log.levels.INFO, { title = 'AutoSave' })
-      end
-    end,
-  })
+      -- Use vim.notify for better integration with notification plugins (like nvim-notify)
+      vim.notify('Saved ' .. filename .. ' at ' .. time, vim.log.levels.INFO, { title = 'AutoSave' })
+    end
+  end, 'Notify on auto-save')
 end)

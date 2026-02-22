@@ -288,6 +288,7 @@ later(function() require('mini.extra').setup() end)
 later(function()
   local ai = require('mini.ai')
   ai.setup({
+    n_lines = 500,
     -- 'mini.ai' can be extended with custom textobjects
     custom_textobjects = {
       -- Make `aB` / `iB` act on around/inside whole *b*uffer
@@ -304,7 +305,7 @@ later(function()
     -- always try to search only covering textobject and explicitly ask to search
     -- for next (`an`/`in`) or last (`al`/`il`).
     -- Try this. If you don't like it - delete next line and this comment.
-    search_method = 'cover',
+    -- search_method = 'cover',
   })
 end)
 
