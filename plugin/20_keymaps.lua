@@ -247,3 +247,9 @@ nmap_leader('vL', '<Cmd>lua MiniVisits.remove_label()<CR>',       'Remove label'
 -- stylua: ignore end
 
 vim.keymap.set('n', '<C-a>', 'ggVG', opts)
+nmap( '<F5>', "<cmd>lua require('dap').continue()<CR>")
+nmap( '<F10>', "<cmd>lua require('dap').step_over()<CR>")
+nmap( '<F11>', "<cmd>lua require('dap').step_into()<CR>")
+nmap( '<F12>', "<cmd>lua require('dap').step_out()<CR>")
+nmap( '<leader>db', "<cmd>lua require('dap').toggle_breakpoint()<CR>")
+nmap( '<leader>du', "<cmd>lua require('dapui').toggle()<CR>")

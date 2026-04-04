@@ -448,3 +448,26 @@ later(function()
     end
   end, 'Notify on auto-save')
 end)
+
+now_if_args(function()
+  add({
+  "https://github.com/mfussenegger/nvim-dap",
+  "https://github.com/mfussenegger/nvim-dap-python",
+  "https://github.com/rcarriga/nvim-dap-ui",
+  "https://github.com/nvim-neotest/nvim-nio",
+})
+
+local dap = require("dap")
+local dap_python = require("dap-python")
+local dapui = require("dapui")
+
+-- point to debugpy installed via: uv tool install debugpy
+dap_python.setup(vim.fn.exepath("debugpy"))
+
+dapui.setup()
+
+-- auto open/close UI with session lifecycle
+dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
+dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+dap.listeners.before.event_exited["dapui_config"]     = function() dapui.close() end
+end)
