@@ -195,6 +195,7 @@ now_if_args(function()
     'json',
     'bash',
     'zsh',
+    'c',
     'toml',
     'html',
     'javascript',
@@ -205,9 +206,7 @@ now_if_args(function()
     -- - Visit 'SUPPORTED_LANGUAGES.md' file at
     --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
   }
-  local isnt_installed = function(lang)
-    return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0
-  end
+  local isnt_installed = function(lang) return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0 end
   local to_install = vim.tbl_filter(isnt_installed, languages)
   if #to_install > 0 then require('nvim-treesitter').install(to_install) end
 
@@ -261,6 +260,7 @@ now_if_args(function()
     'nil_ls',
     'yamlls',
     'ruff',
+    'clangd',
   })
 
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
@@ -297,7 +297,7 @@ later(function()
     formatters_by_ft = {
       lua = { 'stylua' },
       dockerfile = { 'dockerfmt' },
-      go = { 'goimports', 'gofumpt', 'golines' },
+      go = { 'goimports', 'gofumpt' },
       python = {
         'ruff_organize_imports',
         -- To fix lint errors.
@@ -453,23 +453,23 @@ end)
 
 now_if_args(function()
   add({
-  "https://github.com/mfussenegger/nvim-dap",
-  "https://github.com/mfussenegger/nvim-dap-python",
-  "https://github.com/rcarriga/nvim-dap-ui",
-  "https://github.com/nvim-neotest/nvim-nio",
-})
+    'https://github.com/mfussenegger/nvim-dap',
+    'https://github.com/mfussenegger/nvim-dap-python',
+    'https://github.com/rcarriga/nvim-dap-ui',
+    'https://github.com/nvim-neotest/nvim-nio',
+  })
 
-local dap = require("dap")
-local dap_python = require("dap-python")
-local dapui = require("dapui")
+  local dap = require('dap')
+  local dap_python = require('dap-python')
+  local dapui = require('dapui')
 
--- point to debugpy installed via: uv tool install debugpy
-dap_python.setup(vim.fn.exepath("debugpy"))
+  -- point to debugpy installed via: uv tool install debugpy
+  dap_python.setup(vim.fn.exepath('debugpy'))
 
-dapui.setup()
+  dapui.setup()
 
--- auto open/close UI with session lifecycle
-dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
-dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
-dap.listeners.before.event_exited["dapui_config"]     = function() dapui.close() end
+  -- auto open/close UI with session lifecycle
+  dap.listeners.after.event_initialized['dapui_config'] = function() dapui.open() end
+  dap.listeners.before.event_terminated['dapui_config'] = function() dapui.close() end
+  dap.listeners.before.event_exited['dapui_config'] = function() dapui.close() end
 end)
